@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import express, { json, urlencoded } from 'express';
 import dotenv from 'dotenv';
+import customerSchema from './purchaseSchema';
 dotenv.config();
 const supabaseUrl = 'https://yuggzirvwjezbxxsyrgi.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
@@ -121,6 +122,52 @@ res.send(
 
 });
 
+app.get('/promos',async (req,res) => {
+   const { data: promos, error } = await supabase.from('promos').select('*');
+    if(error){
+      console.log('Error Supabase', error);
+      return res.status(500).json({'error': error});
+    }
+    res.status(200).json(promos); 
+});
+
+app.post('/consumo', async (req,res) => {
+ 
+  // Validate request body  
+  const result = customerSchema.safeParse(req.body);
+    if (!result.success) {
+      const errors = result.error.errors.map(err => err.message);
+      console.log('Validation errors:', errors);
+      return res.status(400).json({ errors });
+    }
+
+    const { cedula, nombre, cantidad, customer_promo } = req.body;
+    const { data, error } = await supabase.from('customers').select('*').eq('cedula', cedula);
+    if(error){
+      console.log('Error Supabase', error);
+      return res.status(500).json({'error': error});
+    }
+    if(!data || 0 >= data.length ){
+
+      // Insert new customer
+      const { data: insertData, error: insertError } = await supabase.from('customers')
+      .insert({ cedula, nombre, cantidad, customer_promo });
+      if(insertError){
+        console.log('Error inserting customer:', insertError);
+        return res.status(500).json({'error': insertError});
+      }
+      return  res.status(201).json(insertData);
+    }else{
+      // Update existing customer
+      const { data: updateData, error: updateError } = await supabase.from('customers')
+      .update({ cantidad: data[0].cantidad + cantidad }).eq('cedula', cedula);  
+      if(updateError){
+        console.log('Error updating customer:', updateError);
+        return res.status(500).json({'error': updateError});
+      }
+      return res.status(200).json(updateData);
+    }
+    });
 
 app.use((req, res, next) => {
   res.status(404).send(`
@@ -132,7 +179,10 @@ app.use((req, res, next) => {
       </body>
     </html>
   `)
-})
+});
+
+
+
 
 app.listen(3000, () => {
    console.log('App listening on port 3000');
