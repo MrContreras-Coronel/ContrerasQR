@@ -1,0 +1,29 @@
+{
+  "name": "contrerasqr",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MrContreras-Coronel/ContrerasQR.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MrContreras-Coronel/ContrerasQR/issues"
+  },
+  "homepage": "https://github.com/MrContreras-Coronel/ContrerasQR#readme",
+  "description": "",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.81.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "fs": "^0.0.1-security",
+    "pg": "^8.16.3"
+  }
+}
