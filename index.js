@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import express, { json, urlencoded } from 'express';
 import dotenv from 'dotenv';
-import customerSchema from './purchaseSchema';
+import customerSchema from './purchaseSchema.js';
 dotenv.config();
 const supabaseUrl = 'https://yuggzirvwjezbxxsyrgi.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
@@ -129,6 +129,20 @@ app.get('/promos',async (req,res) => {
       return res.status(500).json({'error': error});
     }
     res.status(200).json(promos); 
+});
+
+app.get('/customer/:customer_id', async (req,res) => {
+   const { customer_id } = req.params;
+   const { data: customer, error } = await supabase.from('customers').select('*').eq('cedula', customer_id);
+    if(error){
+      console.log('Error Supabase', error);
+      return res.status(500).json({'error': error});
+    } 
+    if (!customer || customer.length === 0) {
+      console.log('Customer not found:', customer_id);
+      return res.status(404).json({ error: 'Customer not found' });
+    } 
+    res.status(200).json(customer[0]);
 });
 
 app.post('/consumo', async (req,res) => {
