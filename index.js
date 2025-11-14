@@ -133,7 +133,7 @@ app.get('/promos',async (req,res) => {
 
 app.get('/customer/:customer_id', async (req,res) => {
    const { customer_id } = req.params;
-   const { data: customer, error } = await supabase.from('customers').select('*').eq('cedula', customer_id);
+   const { data: customer, error } = await supabase.from('customers').select('*, promos (descripcion)').eq('cedula', customer_id);
     if(error){
       console.log('Error Supabase', error);
       return res.status(500).json({'error': error});
@@ -156,7 +156,7 @@ app.post('/consumo', async (req,res) => {
     }
 
     const { cedula, nombre, cantidad, customer_promo } = req.body;
-    const { data, error } = await supabase.from('customers').select('*').eq('cedula', cedula);
+    const { data, error } = await supabase.from('customers').select('*, promos ( descripcion )').eq('cedula', cedula);
     if(error){
       console.log('Error Supabase', error);
       return res.status(500).json({'error': error});
