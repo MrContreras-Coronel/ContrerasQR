@@ -43,7 +43,7 @@ app.get('/gift/:customer_id', async (req,res) => {
   if( monto > saldo ){
     return res.status(400).send('Falta poco, solo ' + (monto - saldo) + ' para tu recompensa!' );
   }else{
-    const { data, error } = await supabase.from('customers').update({ cantidad: 0 }).eq('cedula', customer_id);
+    const { data, error } = await supabase.from('customers').update({ cantidad: saldo - monto }).eq('cedula', customer_id);
     if(error){
       console.log('Error updating customer:', error);
       return res.status(500).json({'error': error});
