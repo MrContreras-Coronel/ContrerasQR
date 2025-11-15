@@ -148,14 +148,15 @@ app.get('/customer/:customer_id', async (req,res) => {
 app.post('/consumo', async (req,res) => {
  
   // Validate request body  
-  const result = customerSchema.safeParse(req.body);
+   const result = customerSchema.safeParse(req.body);
     if (!result.success) {
-      const errors = result.error.errors.map(err => err.message);
+      const errors = result.error;
       console.log('Validation errors:', errors);
       return res.status(400).json({ errors });
     }
-
+    console.log(req.body)
     const { cedula, nombre, cantidad, customer_promo } = req.body;
+
     const { data, error } = await supabase.from('customers').select('*, promos ( descripcion )').eq('cedula', cedula);
     if(error){
       console.log('Error Supabase', error);
