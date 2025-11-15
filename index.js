@@ -175,7 +175,7 @@ app.post('/consumo', async (req,res) => {
     }else{
       // Update existing customer
       const { data: updateData, error: updateError } = await supabase.from('customers')
-      .update({ cantidad: data[0].cantidad + cantidad }).eq('cedula', cedula);  
+      .update({ cantidad: data[0].cantidad + cantidad , customer_promo: customer_promo}).eq('cedula', cedula);  
       if(updateError){
         console.log('Error updating customer:', updateError);
         return res.status(500).json({'error': updateError});
