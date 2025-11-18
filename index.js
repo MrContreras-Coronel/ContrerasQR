@@ -40,7 +40,7 @@ app.get('/gift/:customer_id', async (req,res) => {
   const { cedula, nombre, cantidad: saldo, promos} = customer[0];
   const { monto, descripcion } = promos;
 
-  if( monto > saldo ){
+  if( monto >= saldo ){
     return res.status(400).send('Falta poco, solo ' + (monto - saldo) + ' para tu recompensa!' );
   }else{
     const { data, error } = await supabase.from('customers').update({ cantidad: saldo - monto }).eq('cedula', customer_id);
@@ -133,7 +133,7 @@ app.get('/promos',async (req,res) => {
 
 app.get('/customer/:customer_id', async (req,res) => {
    const { customer_id } = req.params;
-   const { data: customer, error } = await supabase.from('customers').select('*, promos (descripcion)').eq('cedula', customer_id);
+   const { data: customer, error } = await supabase.from('customers').select('*, promos (promo_id, descripcion)').eq('cedula', customer_id);
     if(error){
       console.log('Error Supabase', error);
       return res.status(500).json({'error': error});
@@ -142,20 +142,24 @@ app.get('/customer/:customer_id', async (req,res) => {
       console.log('Customer not found:', customer_id);
       return res.status(404).json({ error: 'Customer not found' });
     } 
+    console.log(customer[0]);
     res.status(200).json(customer[0]);
 });
 
 app.post('/consumo', async (req,res) => {
  
   // Validate request body  
+   console.log(req.body);
    const result = customerSchema.safeParse(req.body);
     if (!result.success) {
       const errors = result.error;
       console.log('Validation errors:', errors);
       return res.status(400).json({ errors });
     }
-    console.log(req.body)
-    const { cedula, nombre, cantidad, customer_promo } = req.body;
+   // console.log(req.body)
+    const { cedula, nombre, cantidad, customer_promo, telefono } = req.body;
+
+    var dt; 
 
     const { data, error } = await supabase.from('customers').select('*, promos ( descripcion )').eq('cedula', cedula);
     if(error){
@@ -166,7 +170,7 @@ app.post('/consumo', async (req,res) => {
 
       // Insert new customer
       const { data: insertData, error: insertError } = await supabase.from('customers')
-      .insert({ cedula, nombre, cantidad, customer_promo });
+      .insert({ cedula, nombre, cantidad, customer_promo, telefono });
       if(insertError){
         console.log('Error inserting customer:', insertError);
         return res.status(500).json({'error': insertError});
@@ -175,7 +179,7 @@ app.post('/consumo', async (req,res) => {
     }else{
       // Update existing customer
       const { data: updateData, error: updateError } = await supabase.from('customers')
-      .update({ cantidad: data[0].cantidad + cantidad , customer_promo: customer_promo}).eq('cedula', cedula);  
+      .update({ cantidad: data[0].cantidad + cantidad , customer_promo: customer_promo, telefono: telefono, nombre: nombre}).eq('cedula', cedula);  
       if(updateError){
         console.log('Error updating customer:', updateError);
         return res.status(500).json({'error': updateError});
