@@ -103,7 +103,7 @@ res.send(
     <div class="title">Gift Card</div>
   </div>
    <div class="field">
-      <div class="label">Cedula o Rif</div>
+      <div class="label">Teléfono</div>
       <div class="value">${cedula}</div>
    </div>
   <div class="card">
